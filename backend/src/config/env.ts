@@ -13,6 +13,7 @@ const envSchema = z.object({
     .default(8000),
 
   CORS_ORIGIN: z.string().url(),
+  DATABASE_URL: z.string().min(1),
 });
 
 const result = envSchema.safeParse(process.env);
