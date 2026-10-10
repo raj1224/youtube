@@ -1,26 +1,26 @@
-import "dotenv/config";
-
+import { env } from "./config/env.js";
 import app from "./app.js";
+
 import { prisma } from "./config/db.js";
-import { connectRedis, disconnectRedis } from "./config/redis.js";
+import {
+  connectRedis,
+  disconnectRedis,
+} from "./config/redis.js";
 import {
   connectKafka,
   disconnectKafka,
 } from "./config/kafka.js";
 
-const PORT = Number(process.env.PORT) || 8000;
-
 const startServer = async () => {
   try {
     await prisma.$connect();
-
     console.log("🗄️ PostgreSQL connected");
 
     await connectRedis();
     await connectKafka();
 
-    const server = app.listen(PORT, () => {
-      console.log(`🚀 Server running on port ${PORT}`);
+    const server = app.listen(env.PORT, () => {
+      console.log(`🚀 Server running on port ${env.PORT}`);
     });
 
     const shutdown = async (signal) => {
@@ -32,7 +32,7 @@ const startServer = async () => {
         await disconnectKafka();
 
         console.log("HTTP server closed.");
-        console.log("Database connection closed.");
+        console.log("All connections closed.");
 
         process.exit(0);
       });
@@ -44,8 +44,9 @@ const startServer = async () => {
     console.error("❌ Failed to start server:", error);
 
     await prisma.$disconnect();
+
     process.exit(1);
   }
 };
 
-void startServer();
+startServer();

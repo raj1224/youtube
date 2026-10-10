@@ -1,8 +1,10 @@
 import { Kafka } from "kafkajs";
 
+import { env } from "./env.js";
+
 const kafka = new Kafka({
-  clientId: process.env.KAFKA_CLIENT_ID,
-  brokers: process.env.KAFKA_BROKERS.split(","),
+  clientId: env.KAFKA_CLIENT_ID,
+  brokers: env.KAFKA_BROKERS.split(",").map((broker) => broker.trim()),
 });
 
 export const producer = kafka.producer();
