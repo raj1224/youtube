@@ -4,11 +4,17 @@ import { verifyAccessToken } from "../utils/jwt.js";
 const verifyJWT = (req, _res, next) => {
   const authHeader = req.headers.authorization;
 
-  if (!authHeader?.startsWith("Bearer ")) {
+  const headerToken = authHeader?.startsWith("Bearer ")
+    ? authHeader.split(" ")[1]
+    : null;
+
+  const cookieToken = req.cookies?.accessToken;
+
+  const token = cookieToken || headerToken;
+
+  if (!token) {
     throw new ApiError(401, "Authentication required");
   }
-
-  const token = authHeader.split(" ")[1];
 
   try {
     const decoded = verifyAccessToken(token);

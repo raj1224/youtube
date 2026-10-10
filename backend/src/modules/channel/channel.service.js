@@ -113,6 +113,21 @@ export const updateMyChannel = async (userId, data) => {
     throw new ApiError(404, "Channel not found");
   }
 
+  if (data.handle) {
+    const handleOwner = await prisma.channel.findUnique({
+      where: {
+        handle: data.handle,
+      },
+      select: {
+        id: true,
+      },
+    });
+
+    if (handleOwner && handleOwner.id !== existingChannel.id) {
+      throw new ApiError(409, "Channel handle already exists");
+    }
+  }
+
   const channel = await prisma.channel.update({
     where: {
       id: existingChannel.id,

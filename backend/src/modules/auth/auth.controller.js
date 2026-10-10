@@ -47,6 +47,14 @@ export const login = asyncHandler(async (req, res) => {
   const { user, accessToken, refreshToken } =
     await loginUser(result.data);
 
+  res.cookie("accessToken", accessToken, {
+    httpOnly: true,
+    secure: env.COOKIE_SECURE,
+    sameSite: env.COOKIE_SAME_SITE,
+    path: "/",
+    maxAge: 15 * 60 * 1000,
+  });
+
   res.cookie("refreshToken", refreshToken, {
     httpOnly: true,
     secure: env.COOKIE_SECURE,
@@ -60,7 +68,6 @@ export const login = asyncHandler(async (req, res) => {
       200,
       {
         user,
-        accessToken,
       },
       "Login successful",
     ),
@@ -72,6 +79,13 @@ export const logout = asyncHandler(async (req, res) => {
 
   await logoutUser(refreshToken);
 
+  res.clearCookie("accessToken", {
+    httpOnly: true,
+    secure: env.COOKIE_SECURE,
+    sameSite: env.COOKIE_SAME_SITE,
+    path: "/",
+  });
+
   res.clearCookie("refreshToken", {
     httpOnly: true,
     secure: env.COOKIE_SECURE,
@@ -79,13 +93,9 @@ export const logout = asyncHandler(async (req, res) => {
     path: "/api/v1/auth",
   });
 
-  return res.status(200).json(
-    new ApiResponse(
-      200,
-      null,
-      "Logged out successfully",
-    ),
-  );
+  return res
+    .status(200)
+    .json(new ApiResponse(200, null, "Logout successful"));
 });
 
 export const getMe = asyncHandler(async (req, res) => {
@@ -105,6 +115,14 @@ export const refresh = asyncHandler(async (req, res) => {
 
   const data = await refreshAccessToken(refreshToken);
 
+  res.cookie("accessToken", data.accessToken, {
+    httpOnly: true,
+    secure: env.COOKIE_SECURE,
+    sameSite: env.COOKIE_SAME_SITE,
+    path: "/",
+    maxAge: 15 * 60 * 1000,
+  });
+
   res.cookie("refreshToken", data.refreshToken, {
     httpOnly: true,
     secure: env.COOKIE_SECURE,
@@ -118,9 +136,8 @@ export const refresh = asyncHandler(async (req, res) => {
       200,
       {
         user: data.user,
-        accessToken: data.accessToken,
       },
-      "Token refreshed successfully",
+      "Access token refreshed successfully",
     ),
   );
 });
