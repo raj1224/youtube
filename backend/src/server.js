@@ -1,8 +1,14 @@
 import "dotenv/config";
 
 import app from "./app.js";
-import { env } from "./config/env.js";
 import { prisma } from "./config/db.js";
+import { connectRedis, disconnectRedis } from "./config/redis.js";
+import {
+  connectKafka,
+  disconnectKafka,
+} from "./config/kafka.js";
+
+const PORT = Number(process.env.PORT) || 8000;
 
 const startServer = async () => {
   try {
@@ -10,15 +16,20 @@ const startServer = async () => {
 
     console.log("🗄️ PostgreSQL connected");
 
-    const server = app.listen(env.PORT, () => {
-      console.log(`🚀 Server running on port ${env.PORT}`);
+    await connectRedis();
+    await connectKafka();
+
+    const server = app.listen(PORT, () => {
+      console.log(`🚀 Server running on port ${PORT}`);
     });
 
-    const shutdown = async (signal: string) => {
+    const shutdown = async (signal) => {
       console.log(`\n${signal} received. Shutting down...`);
 
       server.close(async () => {
         await prisma.$disconnect();
+        await disconnectRedis();
+        await disconnectKafka();
 
         console.log("HTTP server closed.");
         console.log("Database connection closed.");
