@@ -5,7 +5,7 @@ import cookieParser from "cookie-parser";
 
 import { env } from "./config/env.js";
 
-import authRoutes from "./modules/auth/auth.routes.js";
+
 import errorMiddleware from "./common/middleware/error.middleware.js";
 
 const app = express();
@@ -39,7 +39,13 @@ app.get("/health", (_req, res) => {
   });
 });
 
+// ROUTES
+import authRoutes from "./modules/auth/auth.routes.js";
+import channelRoutes from "./modules/channel/channel.routes.js";
+
+
 app.use("/api/v1/auth", authRoutes);
+app.use("/api/v1/channels", channelRoutes);
 
 app.use(errorMiddleware);
 
