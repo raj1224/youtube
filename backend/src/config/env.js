@@ -46,6 +46,15 @@ const envSchema = z.object({
   JWT_REFRESH_EXPIRES_IN: z
   .string()
   .min(1),
+
+  COOKIE_SECURE: z
+  .enum(["true", "false"])
+  .default("false")
+  .transform((value) => value === "true"),
+
+COOKIE_SAME_SITE: z
+  .enum(["lax", "strict", "none"])
+  .default("lax"),
 });
 
 const result = envSchema.safeParse(process.env);
