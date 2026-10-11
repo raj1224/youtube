@@ -72,6 +72,10 @@ model Video {
 
   channel Channel @relation(fields: [channelId], references: [id], onDelete: Cascade)
 
+  assets         VideoAsset[]
+  variants       VideoVariant[]
+  processingJobs VideoProcessingJob[]
+
   @@index([channelId])
   @@index([status])
   @@index([visibility])
@@ -89,4 +93,78 @@ enum VideoVisibility {
   PUBLIC
   UNLISTED
   PRIVATE
+}
+
+model VideoAsset {
+  id      String @id @default(uuid())
+  videoId String
+
+  type       VideoAssetType
+  storageKey String
+  mimeType   String
+  sizeBytes  BigInt
+
+  createdAt DateTime @default(now())
+
+  video Video @relation(fields: [videoId], references: [id], onDelete: Cascade)
+
+  @@index([videoId])
+  @@index([type])
+}
+
+enum VideoAssetType {
+  ORIGINAL
+  THUMBNAIL
+  PREVIEW
+}
+
+model VideoVariant {
+  id      String @id @default(uuid())
+  videoId String
+
+  resolution String
+  width      Int
+  height     Int
+
+  bitrate Int?
+  codec   String?
+
+  playlistKey   String
+  segmentPrefix String
+
+  createdAt DateTime @default(now())
+
+  video Video @relation(fields: [videoId], references: [id], onDelete: Cascade)
+
+  @@index([videoId])
+  @@index([resolution])
+}
+
+model VideoProcessingJob {
+  id      String @id @default(uuid())
+  videoId String
+
+  status   ProcessingJobStatus @default(PENDING)
+  attempts Int                 @default(0)
+
+  errorMessage String?
+
+  startedAt   DateTime?
+  completedAt DateTime?
+
+  createdAt DateTime @default(now())
+  updatedAt DateTime @updatedAt
+
+  video Video @relation(fields: [videoId], references: [id], onDelete: Cascade)
+
+  @@index([videoId])
+  @@index([status])
+  @@index([createdAt])
+}
+
+enum ProcessingJobStatus {
+  PENDING
+  PROCESSING
+  COMPLETED
+  FAILED
 }

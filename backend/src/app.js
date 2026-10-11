@@ -42,10 +42,12 @@ app.get("/health", (_req, res) => {
 // ROUTES
 import authRoutes from "./modules/auth/auth.routes.js";
 import channelRoutes from "./modules/channel/channel.routes.js";
+import videoRoutes from "./modules/video/video.routes.js";
 
 
 app.use("/api/v1/auth", authRoutes);
 app.use("/api/v1/channels", channelRoutes);
+app.use("/api/v1/videos", videoRoutes);
 
 app.use(errorMiddleware);
 

@@ -55,6 +55,11 @@ const envSchema = z.object({
 COOKIE_SAME_SITE: z
   .enum(["lax", "strict", "none"])
   .default("lax"),
+
+  S3_REGION: z.string().min(1),
+S3_BUCKET: z.string().min(1),
+S3_ACCESS_KEY_ID: z.string().min(1),
+S3_SECRET_ACCESS_KEY: z.string().min(1),
 });
 
 const result = envSchema.safeParse(process.env);
